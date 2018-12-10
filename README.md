@@ -1,1 +1,1 @@
-![Alt text](/ss/screenshot.JPG?raw=true "Optional Title")
+![Alt text](/ss/screenshot.JPG?raw=true "screenshot")
