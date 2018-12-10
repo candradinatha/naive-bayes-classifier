@@ -3,17 +3,20 @@ if (isset($_POST['email'])) {
     $email = $_POST['email'];
 
     require_once('NaiveBayesClassifier.php');
+    require_once('PorterStemmer.php');
 
     $classifier = new NaiveBayesClassifier();
     $spam = Category::$SPAM;
     $ham = Category::$HAM;
+
+    $stemmedArray = array();
 
 //     $classifier -> train('Have a pleasurable stay! Get up to 30% off + Flat 20% Cashback on Oyo Room' . 
 //             ' bookings done via Paytm', $spam);
 //     $classifier -> train('Lets Talk Fashion! Get flat 40% Cashback on Backpacks, Watches, Perfumes,' .
 //             ' Sunglasses & more', $spam);
 
-//     $classifier -> train('Opportunity with Product firm for Fullstack | Backend | Frontend- Bangalore', $ham);
+    // $classifier -> train('Nah I do not think he goes to usf, he lives around here though	', $ham);
 //     $classifier -> train('Javascript Developer, Fullstack Developer in Bangalore- Urgent Requirement', $ham);
 
     // $category = $classifier -> classify('Get the 90% discount now!!!!!');
@@ -22,6 +25,12 @@ if (isset($_POST['email'])) {
     
     
     $tokenize = $classifier -> tokenize($email);
+    foreach ($tokenize as $word) {
+        $stemmed = PorterStemmer::Stem($word);
+        array_push($stemmedArray, $stemmed);
+    }
+    $spamWeight = $classifier -> spam($tokenize);
+    $hamWeight = $classifier -> ham($tokenize);
     $category = $classifier -> decide($tokenize);
 
 }
@@ -39,7 +48,7 @@ if (isset($_POST['email'])) {
         .card {
             box-shadow: 0 18px 35px rgba(50,50,93,.1), 0 8px 15px rgba(0,0,0,.07);
             border-radius:20px;
-            height: 600px;
+            height: 650px;
         }
         .col-8 .card {
             height:200px;
@@ -82,23 +91,27 @@ if (isset($_POST['email'])) {
                             <h4 for="emailInput">Input Email</h4>
                             <textarea class="form-control" id="emailInput" rows="8" name="email"></textarea>
                         </div>
-                        <input class="btn" type="submit" value="submit"> 
+                        <input class="btn float-right" type="submit" value="submit"> 
                     </form>
-                    <h1>
-                    </h1>
+                    <h4 class="mt-4">Email: </h4>
+                    <div class="form-group">
+                        <textarea readonly class="form-control" id="emailInput" rows="10" name="email"><?php if(empty($email)){echo "";} else echo $email;?></textarea>
+                    </div>
                 </div>
             </div>
             <div class="col-4">
                 <div class="card p-3">
                     <div>
-                        <h4>Hasil Tokenisasi: </h4>
+                        <h4>Hasil Stop Word: </h4>
                         <div class="form-group">
-                            <textarea class="form-control" id="emailInput" rows="4" name="email"><?php echo $email;?></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <textarea class="form-control" id="emailInput" rows="4" name="email"><?php if(empty($tokenize)){echo "";} 
+                            <textarea readonly class="form-control" id="emailInput" rows="10" name="email"><?php if(empty($tokenize)){echo "";} 
                                 else echo json_encode($tokenize);?>
+                            </textarea>
+                        </div>
+                        <h4>Hasil Stemming: </h4>
+                        <div class="form-group">
+                            <textarea readonly class="form-control" id="emailInput" rows="10" name="email"><?php if(empty($tokenize)){echo "";} 
+                                else echo json_encode($stemmedArray);?>
                             </textarea>
                         </div>
 
@@ -108,10 +121,24 @@ if (isset($_POST['email'])) {
             <div class="col-4">
                 <div class="card p-3">
                     <div>
+                        <h4>Probabilitas Spam:</h4>
+                        <div class="form-group">
+                            <textarea readonly class="form-control" id="emailInput" rows="2" name="email"><?php if(empty($spamWeight)){echo "";
+                                } else echo $spamWeight;?>
+                            </textarea>
+                        </div>
+                        <h4>Probabilitas Ham:</h4>
+                        <div class="form-group">
+                            <textarea readonly class="form-control" id="emailInput" rows="2" name="email"><?php if(empty($hamWeight)){echo "";
+                                } else echo $hamWeight;?>
+                            </textarea>
+                        </div>                    
                         <h4>Hasil Klasifikasi:</h4>
-                        <textarea class="form-control" id="emailInput" rows="8" name="email"><?php if(empty($category)){echo "";
-                            } else echo $category;?>
-                        </textarea>
+                        <div class="form-group">
+                            <textarea readonly class="form-control" id="emailInput" rows="2" name="email"><?php if(empty($category)){echo "";
+                                } else echo $category;?>
+                            </textarea>        
+                        </div>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "naiveBayes";
+    $dbname = "naivebayes";
 
     // Create connection
     $conn = mysqli_connect($servername, $username, $password, $dbname);
